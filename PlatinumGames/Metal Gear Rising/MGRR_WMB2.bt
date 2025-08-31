@@ -1,0 +1,161 @@
+// WMB2
+
+struct {
+    char magic[4];
+    int minusone;
+    int version;
+    float bounding_box1;
+    float bounding_box2;
+    float bounding_box3;
+    float bounding_box4;
+    float bounding_box5;
+    float bounding_box6;
+    
+    uint vertexGroupPointer;
+    uint batchPointer;
+    uint batchCount;
+    
+    uint bonePointer;
+    uint boneCount;
+    
+    uint boneTranslateTablePointer;
+    uint boneTranslateTableSize;
+    
+    uint boneSetPointer;
+    uint boneSetCount;
+    uint materialPointer;
+    uint materialCount;
+    
+    uint texturePointer;
+    uint textureCount;
+    uint meshPointer;
+    uint meshCount;
+    
+    uint unknownPointer;
+    
+} header;
+
+FSeek(header.vertexGroupPointer);
+struct {
+    uint dataPointer;
+    uint vertexSize;
+    uint unknownPointer;
+    uint unknownCount;
+    uint vertexCount;
+    uint vertexFormat;
+    FSeek(dataPointer);
+    struct {
+        float x;
+        float y;
+        float z;
+        hfloat u;
+        hfloat v;
+        struct{
+            byte x;
+            byte y;
+            byte z;
+            byte pad;
+        } normals;
+        struct {
+            byte x;
+            byte y;
+            byte z;
+            byte d;
+        } tangents;
+        
+        struct {
+            byte a;
+            byte b;
+            byte c;
+            byte d;
+        } indexes;
+        struct {
+            byte a;
+            byte b;
+            byte c;
+            byte d;
+        } weights;
+        
+        
+    } vertexes[vertexCount];
+    
+} vertexGroup;
+
+
+FSeek(header.batchPointer);
+struct batch {
+    uint facePointer;
+    uint vertexStart;
+    uint numVertexes;
+    uint numIndexes;
+    uint flags;
+    
+    local int pos = FTell();
+    FSeek(facePointer);
+    struct {
+       short index[numIndexes];  
+    } faces;
+    
+    FSeek(pos);
+    
+    
+} batches[header.batchCount] <optimize = false>;
+
+FSeek(header.materialPointer);
+struct {
+    uint dataPointer;
+    char effectName[0x10];
+    local int pos = FTell();
+    FSeek(dataPointer);
+    struct {
+        short textureCount;
+        short u_2;
+        short u_4;
+        short paramCount;
+        struct {
+            uint id;
+        } textures[textureCount];
+        
+        struct {
+            float a;
+            float b;
+            float c;
+            float d;
+        } params[paramCount / 4];
+        
+    } data;
+    
+    FSeek(pos);
+    
+    
+} materials[header.materialCount] <optimize=false>;
+
+FSeek(header.texturePointer);
+struct {
+    uint a;
+    uint b;
+} textures[header.textureCount];
+
+FSeek(header.meshPointer);
+struct {
+    char name[32];
+    uint batchPointer;
+    short batchCount;
+    short unk;
+    float bounding_box[6];
+    short mystery[12] <comment="One of these is probably prim type">;
+    
+    local int pos = FTell();
+    FSeek(batchPointer);
+    struct {
+        short batchID;
+        
+        short materialID;
+        int c;
+    } batchDesc[batchCount];
+    
+    FSeek(pos);
+    
+    
+} mesh[header.meshCount] <optimize=false>;
+

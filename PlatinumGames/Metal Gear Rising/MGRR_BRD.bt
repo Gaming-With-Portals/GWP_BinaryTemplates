@@ -1,0 +1,21 @@
+struct {
+    char magic[4];
+    float val_1;
+    uint record_count;
+    
+} header;
+
+struct {
+    uint u_1;
+    uint u_2;  
+    float u_3;
+    float u_4;
+    float u_5;  
+    float u_6;
+    float u_7;
+    float u_8;      
+    float u_9;  
+    byte u_10[4];
+    uint u_11;
+    uint u_12;
+} record[header.record_count];

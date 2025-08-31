@@ -1,0 +1,25 @@
+struct {
+    char magic[4];
+    uint version;
+    uint file_count;
+    uint positions_ofs;
+    uint size_ofs;
+    uint flag_ofs;
+    
+} header;
+
+
+local int i = 0;
+for (i = 0; i < header.file_count; i++){
+    struct {
+        FSeek(header.positions_ofs + (i*4));
+        uint offset;  
+        FSeek(header.size_ofs + (i*4));
+        uint size;  
+        FSeek(header.flag_ofs + (i*4));
+        uint flag;  
+        
+    } texture;
+
+    
+};

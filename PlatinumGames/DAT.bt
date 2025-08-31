@@ -1,0 +1,41 @@
+struct {
+    char magic[4];
+    uint file_count;
+    uint offset_offset;
+    uint extensions_offset;
+    uint name_offset;
+    uint size_offset;
+    uint hash_offset;
+} header;
+
+FSeek(header.name_offset);
+uint max_file_name_length;
+FSeek(0);
+local int i = 0;
+for (i = 0; i < header.file_count; i++){
+    struct {
+        FSeek(header.name_offset + 4 + (i * max_file_name_length));
+        char name[max_file_name_length];
+        FSeek(header.extensions_offset + (i * 4));
+        char extension[4];
+        FSeek(header.offset_offset + (i * 4));
+        uint file_pos;
+        FSeek(header.size_offset + (i * 4));
+        uint file_size;
+        
+        
+    } file;
+};
+
+FSeek(header.hash_offset);
+struct {
+    uint hash_shift;
+    uint hash_offset_offset;
+    uint hash_hash_offset;
+    uint hash_indice_offset;
+    FSeek(header.hash_offset + hash_hash_offset);
+    uint hashes[header.file_count] <comment="CRC32">;
+    FSeek(header.hash_offset + hash_indice_offset);
+    short indices[header.file_count];
+    
+} hash_table;
